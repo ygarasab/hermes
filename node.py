@@ -20,22 +20,30 @@ class Node:
 
         self.color = 'white'
         self.neighbors = []
-
+        self.was_filled = 0
         self.load_neighbors()
 
     def fill(self,color):
 
-        self.color = color
-        self.canvas.itemconfig(self.rect, fill=color)
+        self.shallow_fill(color)
         for x,y in self.neighbors:
             n = self.table.nodes[x][y]
-            n.color = color
-            self.canvas.itemconfig(n.rect, fill=color)
+            n.shallow_fill(color)
+
+    def clear(self):
+        self.was_filled = 0
+        self.color = 'white'
+        self.canvas.itemconfig(self.rect, fill='white')
+
+
 
     def shallow_fill(self,color):
 
         self.color = color
         self.canvas.itemconfig(self.rect, fill=color)
+        if not self.was_filled:
+            self.was_filled = 1
+            self.table.filled_nodes.append(self)
 
     def next(self,direction):
 

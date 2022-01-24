@@ -30,6 +30,7 @@ class Table:
                 column += [Node(x,y,self,self.node_side)]
 
             self.nodes += [column]
+        self.filled_nodes = []
 
         self.shapes = []
         self.target_shape = None
@@ -39,17 +40,29 @@ class Table:
         self.resize_params = []
         self.rotating = 0
         self.rotation_angle = 0
+        self.drawing_2v_cube = 0
+        self.drawing_1v_cube = 0
+        self.filling = 0
+
 
     def clear(self):
         self.target_shape = None
-        for i in self.nodes:
-            for node in i:
-                node.fill('white')
+        for node in self.filled_nodes:
+            node.clear()
+        self.filled_nodes = []
 
     def draw_line(self):
 
         line = Line(self, self.color)
         self.target_shape = line
+
+    def draw_1v_cube(self, s):
+        self.drawing_1v_cube = 1
+        self.target_shape = Cube(self, self.color, s)
+
+    def draw_2v_cube(self, s):
+        self.drawing_2v_cube = 1
+        self.target_shape = Cube(self, self.color, s)
 
     def draw_circle(self):
 
@@ -78,7 +91,18 @@ class Table:
 
     def trigger(self, x, y):
          
-        if self.rotating:
+        if self.drawing_2v_cube:
+            self.target_shape.draw_two_point((x,y))
+            self.drawing_2v_cube = 0
+        elif self.drawing_1v_cube:
+            self.target_shape.draw_one_point((x,y))
+            self.drawing_1v_cube = 0
+
+        elif self.filling:
+            self.fill(x,y)
+            self.filling = 0
+
+        elif self.rotating:
             self.rotate((x,y))
             self.rotating = 0
 
@@ -99,17 +123,24 @@ class Table:
                 self.shapes.append(self.target_shape)
                 self.target_shape = None
 
-    def draw(self, x,y, color):
+    def draw(self, x,y):
 
         if x < 0 or y < 0 or x >= self.side or y >= self.side: return 
 
         pixel = self.nodes[x][y]
-        pixel.fill(color)
+        pixel.fill(self.color)
 
-    def fill(self, x,y, color):
+    def start_filling(self):
+        self.translating = 0
+        self.target_shape = None
+        self.resizing = 0
+        self.rotating = 0
+        self.filling = 1
+
+    def fill(self, x,y ):
 
         node = self.nodes[x][y]
-        points = fill_points(x,y,color,self)
+        points = fill_points(x,y,self.color, self)
 
 
     def start_translation(self):

@@ -10,6 +10,6 @@ class Line(Shape):
         self.n_vertices = 2
 
     def draw(self):
-         
+
         points = render_line(*self.vertices)
         self.draw_points(points)
